@@ -26,6 +26,7 @@ import org.springframework.util.StringUtils;
  * @since 2019-09-02
  */
 public class XstreamUtil {
+    public static final String ROOT = "wechat";
     /**
      * xsttream扩展，bean转xml自动加上![CDATA[]]
      * @return
@@ -71,8 +72,22 @@ public class XstreamUtil {
         stream.allowTypes(new Class[]{clazz});
         stream.processAnnotations(new Class[]{clazz});
         stream.setMode(XStream.NO_REFERENCES);
-        stream.alias("xml", clazz);
+        stream.alias(ROOT, clazz);
         return (T) stream.fromXML(resultXml);
+    }
+
+    /**
+     * bean转xml泛型方法
+     * @param object
+     * @param <T>
+     * @return
+     */
+    public static <T> String beanToXml(T object) {
+        XStream xStream = getXstream();
+        xStream.alias(ROOT, object.getClass());
+        xStream.processAnnotations(object.getClass());
+        String xml = xStream.toXML(object);
+        return xml;
     }
 
     public static void main(String[] args) {
@@ -83,10 +98,7 @@ public class XstreamUtil {
         wecharMessageTextEntity.setMsgType("1");
         wecharMessageTextEntity.setContent("I love you");
 
-        XStream xStream = getXstream();
-        xStream.alias("xml", wecharMessageTextEntity.getClass());
-        xStream.processAnnotations(WecharMessageTextEntity.class);
-        String xml = xStream.toXML(wecharMessageTextEntity);
+        String xml = beanToXml(wecharMessageTextEntity);
         if (!StringUtils.isEmpty(xml)) {
             System.out.println(xml);
         } else {
